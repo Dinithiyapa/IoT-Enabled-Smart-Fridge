@@ -12,13 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Important to fetch all branches and tags
+          fetch-depth: 0  # Fetch full history for all branches
 
       - name: Set environment variables
         id: vars
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
-          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}"  # optional debug
+          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}"  # Debug
 
       - name: Create GitLab repo if not exists
         env:
@@ -43,12 +43,20 @@ jobs:
               --data "name=$REPO_NAME&namespace_id=$NAMESPACE_ID" \
               https://gitlab.com/api/v4/projects > /dev/null
 
-            echo "Created GitLab repo: $REPO_NAME"
+            echo "✅ Created GitLab repo: $REPO_NAME"
           else
-            echo "GitLab repo '$REPO_NAME' already exists"
+            echo "✅ GitLab repo '$REPO_NAME' already exists"
           fi
 
-      - name: Mirror all branches and tags to GitLab
+      - name: Fetch and create all GitHub branches locally
+        run: |
+          git fetch origin "+refs/heads/*:refs/remotes/origin/*"
+          for branch in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/ | grep -v HEAD); do
+            LOCAL_BRANCH="${branch#origin/}"
+            git checkout -B "$LOCAL_BRANCH" "origin/$LOCAL_BRANCH"
+          done
+
+      - name: Push all branches and tags to GitLab
         env:
           GITLAB_TOKEN: ${{ secrets.TARGET_TOKEN }}
           REPO_NAME: ${{ env.REPO_NAME }}
