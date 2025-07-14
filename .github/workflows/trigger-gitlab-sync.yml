@@ -6,5 +6,5 @@ on:
 
 jobs:
   call-sync:
-    uses: GitHub Backup & Failover/github-actions-workflows/.github/workflows/gitlab-sync-reusable.yml@main
+    uses: Dinithiyapa/GitHub-Backup-Failover-/.github/workflows/gitlab-sync-reusable.yml@main
     secrets: inherit
