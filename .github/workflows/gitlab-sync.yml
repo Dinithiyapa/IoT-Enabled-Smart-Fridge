@@ -1,8 +1,8 @@
 name: GitLabSync
 
 on:
-  //push:
-  //delete:
+  push:
+  delete:
 
 jobs:
   sync:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Important to fetch all branches and tags
 
       - name: Set environment variables
         id: vars
@@ -43,14 +43,15 @@ jobs:
               --data "name=$REPO_NAME&namespace_id=$NAMESPACE_ID" \
               https://gitlab.com/api/v4/projects > /dev/null
 
-            echo "✅ Created GitLab repo: $REPO_NAME"
+            echo "Created GitLab repo: $REPO_NAME"
           else
-            echo "✅ GitLab repo '$REPO_NAME' already exists"
+            echo "GitLab repo '$REPO_NAME' already exists"
           fi
 
-      - name: Sync to GitLab
-        uses: wangchucheng/git-repo-sync@v0.1.0
-        with:
-          target-url: https://gitlab.com/${{ secrets.TARGET_USERNAME }}/${{ env.REPO_NAME }}.git
-          target-username: ${{ secrets.TARGET_USERNAME }}
-          target-token: ${{ secrets.TARGET_TOKEN }}
+      - name: Mirror all branches and tags to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.TARGET_TOKEN }}
+          REPO_NAME: ${{ env.REPO_NAME }}
+        run: |
+          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/${{ secrets.TARGET_USERNAME }}/${REPO_NAME}.git
+          git push --mirror gitlab
