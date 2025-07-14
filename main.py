@@ -57,4 +57,4 @@ while True:
             print("Data Uploaded") 
             print() 
     except OSError as e: 
-        restart_and_reconnect()
+        restart_and_reconnect():
