@@ -54,4 +54,5 @@ jobs:
           REPO_NAME: ${{ env.REPO_NAME }}
         run: |
           git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/${{ secrets.TARGET_USERNAME }}/${REPO_NAME}.git
-          git push --mirror gitlab
+          git push gitlab --all
+          git push gitlab --tags
