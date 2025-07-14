@@ -1,0 +1,10 @@
+name: Trigger GitLab Sync
+
+on:
+  push:
+  delete:
+
+jobs:
+  call-sync:
+    uses: GitHub Backup & Failover/github-actions-workflows/.github/workflows/gitlab-sync-reusable.yml@main
+    secrets: inherit
